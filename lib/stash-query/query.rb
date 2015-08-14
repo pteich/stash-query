@@ -119,11 +119,11 @@ module Stashquery
       event_data = []
       if @config[:write_fields].include?('_all')
         event['_source'].keys.each do |field|
-          event_data << "#{event['_source'][field]}".gsub("\n", '')
+          event_data << "\"#{event['_source'][field]}\"".gsub("\n", '')
         end
       else
         @config[:write_fields].each do |field|
-          event_data << "#{event['_source'][field] if event['_source'][field]}".gsub("\n", '')
+          event_data << "\"#{event['_source'][field] if event['_source'][field]}\"".gsub("\n", '')
         end
       end
       output_data << event_data.join(@config[:delimiter])
@@ -208,6 +208,7 @@ module Stashquery
     end
 
     puts "Using these indices: #{indexes.join(',')}" if $debug
+    puts "Query: #{query}" if $debug
 
     index_str = indexes.join(',')
     res = @es_conn.search index: index_str, q: query, search_type: 'scan', scroll: @config[:scroll_time], size: @config[:scroll_size], df: 'message'
